@@ -1,6 +1,6 @@
 import React from 'react'
 // import './App.css';
-import { Box, Button, Input, LinearProgress, Typography,Stack, Container, Card, CardHeader, TextField, ImageList, ImageListItem, Grid, CardActionArea, CardMedia, CardActions } from '@mui/material';
+import { Box, Button, Input, LinearProgress, Typography,Stack, Container, Card, CardHeader, TextField, ImageList, ImageListItem, Grid, CardActionArea, CardMedia, CardActions, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Alert, Snackbar } from '@mui/material';
 import { useEffect, useState } from 'react';
 // import React from 'react';
 import { deleteObject, getDownloadURL, listAll, ref, uploadBytesResumable } from 'firebase/storage';
@@ -16,14 +16,40 @@ const UpLoadimage = () => {
   const [progress, setProgress] = useState(0);
   const [imageList, setImageList] = useState([]);
   const imagelistRef = ref(storage, 'img/')
+  
+// dialog 
+
+  const [openAl, setOpenAl] = React.useState(false);
+  const [open, setOpen] = React.useState(false);
+
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  // const handleClose = () => {
+  //   setOpen(false);
+  // };
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpen(false);
+
+    setOpenAl(false);
+  };
+
 
 
  
 
-  const deleteHandler = (ref, url) => {
+  const deleteHandler = (ref, url,id) => {
     deleteObject(ref).then((res) =>{
       setImageList(imageList.filter((img) => img.url !== url))
-      alert('seccessfully deleted')
+      setOpen(false);
+    setOpenAl(true);
+
+      // alert('seccessfully deleted')
     })
 
   }
@@ -47,9 +73,8 @@ const UpLoadimage = () => {
       setProgress(0);
       getDownloadURL(upLoadFile.snapshot.ref).then((url) => {
         setImageList((prev) => [...prev, {url: url, ref: uploadfile.snapshot.ref}])
-      })
-      alert('uploaded seccessfully ');
-
+      });
+      setOpenAl(true)
     }
     ) ;
     setImage(null)
@@ -58,21 +83,22 @@ const UpLoadimage = () => {
   // get dataaaa
 
   useEffect(() => {
-    
-      const getData = () => {
-        listAll(imagelistRef).then((res) => {
-          res.items.map((item) =>{
-            getDownloadURL(item).then((url) =>{
-              setImageList((prev) => [...prev, {url: url, ref: item}])
-            })
+    const getData = () => {
+      listAll(imagelistRef).then((res) => {
+        res.items.map((item) =>{
+          getDownloadURL(item).then((url) =>{
+            setImageList((prev) => [...prev, {url: url, ref: item}])
           })
-
         })
-      } 
+
+      })
+    } 
+    
     getData();
   }, [])
 
   
+ 
 
 
 
@@ -102,9 +128,10 @@ const UpLoadimage = () => {
        
       </Box>
       
+      <Snackbar open={openAl} autoHideDuration={6000} onClose={handleClose}>
+      <Alert severity="success">This is a success alert — check it out!</Alert>
+      </Snackbar>
       <Container>
- 
-
   
   <Grid container spacing={2} columnSpacing={2}>
     {imageList && imageList.map((fileobj, index) => (
@@ -119,14 +146,43 @@ const UpLoadimage = () => {
             
             </CardMedia>
             <CardActions>
-              <Button variant='text' onClick={() => deleteHandler(fileobj.ref, fileobj.url)}>
+              <Button variant='text'
+              //  onClick={() => deleteHandler(fileobj.ref, fileobj.url)}
+              onClick={handleClickOpen}
+               >
                 delete
               </Button>
             </CardActions>
           </CardActionArea>
 
         </Card>
-      </Grid>
+
+
+<Dialog
+open={open}
+onClose={handleClose}
+aria-labelledby="alert-dialog-title"
+aria-describedby="alert-dialog-description"
+>
+<DialogTitle id="alert-dialog-title">
+  {"Use Google's location service?"}
+</DialogTitle>
+<DialogContent>
+  <DialogContentText id="alert-dialog-description">
+    Let Google help apps determine location. This means sending anonymous
+    location data to Google, even when no apps are running.
+  </DialogContentText>
+</DialogContent>
+<DialogActions>
+  <Button onClick={handleClose}>Disagree</Button>
+  <Button onClick={() => deleteHandler(fileobj.ref, fileobj.url, fileobj.id)} autoFocus>
+    Agree
+  </Button>
+</DialogActions>
+</Dialog> 
+
+  </Grid>
+
 
     ))}
   </Grid>
@@ -135,6 +191,13 @@ const UpLoadimage = () => {
       </Container>
 
             </Container>
+
+
+
+            {/* dialog */}
+
+
+           
     </div>
   )
 }

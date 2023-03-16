@@ -8,6 +8,8 @@ import { storage } from './firebase/Firebase';
 import { uuidv4 } from '@firebase/util';
 import UpLoadimage from './component/UpLoadimage';
 import LoginPage from './component/LoginPage';
+import Swiper from './swiper/swiper';
+import Swiperjs from './swiper/swiper';
 
 function App() {
 
@@ -76,6 +78,7 @@ function App() {
     <div className="App">
      {/* <LoginPage/> */}
       <UpLoadimage/>
+      {/* <Swiperjs/> */}
     </div>
   );
 }
