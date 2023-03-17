@@ -52,7 +52,16 @@ const UpLoadimage = () => {
 
   }
 
- 
+  const getData = () => {
+    listAll(imagelistRef).then((res) => {
+      res.items.map((item) =>{
+        getDownloadURL(item).then((url) =>{
+          setImageList((prev) => [...prev, {url: url, ref: item}])
+        })
+      })
+    })
+  } 
+
 
   const uploadfile = () => {
     // console.log('up load image', image.name)
@@ -69,34 +78,17 @@ const UpLoadimage = () => {
 
     }, () => {
       setProgress(0);
-      getDownloadURL(upLoadFile.snapshot.ref).then((url) => {
-        setImageList((prev) => [...prev, {url: url, ref: uploadfile.snapshot.ref}])
-      });
       setOpenAl(true)
-    }
-    ) ;
-    setImage(null)
+      getData();
+    });
 
+    setImage(null)
   }
   // get dataaaa
 
   useEffect(() => {
-    const getData = () => {
-      listAll(imagelistRef).then((res) => {
-        res.items.map((item) =>{
-          getDownloadURL(item).then((url) =>{
-            setImageList((prev) => [...prev, {url: url, ref: item}])
-          })
-        })
-
-      })
-    } 
-    
     getData();
   }, [])
-
-  
- 
 
 
 
@@ -106,7 +98,7 @@ const UpLoadimage = () => {
       <Typography variant="h6" color="primary" justifyContent={'center'} marginY={10}>admin gallery page</Typography>
       <Box marginBottom={10}>
         <TextField type='file' size='small' onChange={(e) =>{setImage(e.target.files[0])}} ></TextField>
-        <Button onClick={uploadfile}>Up Load</Button>
+        <Button onClick={uploadfile}>UpLoad</Button>
         <Stack spacing={2} sx={{ flex: 1 }}>
           {
             progress !== 0 ?  (
