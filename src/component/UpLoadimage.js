@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { deleteObject, getDownloadURL, listAll, ref, uploadBytesResumable } from 'firebase/storage';
 import { storage } from '../firebase/Firebase';
 import { uuidv4 } from '@firebase/util';
+import ConfirmationDialog from './ConfirmationDialog';
 
 
 
@@ -64,7 +65,6 @@ const UpLoadimage = () => {
 
 
   const uploadfile = () => {
-    // console.log('up load image', image.name)
     if(image == null) return;
 
     const imageRef = ref(storage, `img/${image.name + uuidv4()}`)
@@ -75,17 +75,16 @@ const UpLoadimage = () => {
       totalBytes * 100);
       setProgress(progress)
     },(err) =>{
-
-    }, () => {
+      // add some error logs here
+    }, async () => {
       setProgress(0);
-      setOpenAl(true)
-      getData();
+      setImageList([])
+      getData()
+      setOpenAl(true);
     });
-
     setImage(null)
   }
-  // get dataaaa
-
+  
   useEffect(() => {
     getData();
   }, [])
@@ -134,34 +133,21 @@ const UpLoadimage = () => {
                >
                 delete
               </Button>
+
+
             </CardActions>
           </CardActionArea>
 
         </Card>
 
-
-<Dialog
-open={open}
-onClose={handleClose}
-aria-labelledby="alert-dialog-title"
-aria-describedby="alert-dialog-description"
->
-<DialogTitle id="alert-dialog-title">
-  {"Use Google's location service?"}
-</DialogTitle>
-<DialogContent>
-  <DialogContentText id="alert-dialog-description">
-    Let Google help apps determine location. This means sending anonymous
-    location data to Google, even when no apps are running.
-  </DialogContentText>
-</DialogContent>
-<DialogActions>
-  <Button onClick={handleClose}>Disagree</Button>
-  <Button onClick={() => deleteHandler()} autoFocus>
-    Agree
-  </Button>
-</DialogActions>
-</Dialog> 
+        <ConfirmationDialog
+        open={open}
+        onClose={() => setOpen(false)}
+        onConfirm={() => {
+          deleteHandler();
+          setImageTobeDelete(''); // Clear the imagePathToDelete
+        }}
+      />
 
   </Grid>
 
