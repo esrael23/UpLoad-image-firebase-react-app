@@ -13,9 +13,10 @@ const UpLoadimage = () => {
 
 
     const [image, setImage] = useState(null);
-  const [progress, setProgress] = useState(0);
-  const [imageList, setImageList] = useState([]);
-  const imagelistRef = ref(storage, 'img/')
+    const [progress, setProgress] = useState(0);
+    const [imageList, setImageList] = useState([]);
+    const imagelistRef = ref(storage, 'img/');
+    const [imageTobeDelete, setImageTobeDelete] = useState("");
   
 // dialog 
 
@@ -23,7 +24,8 @@ const UpLoadimage = () => {
   const [open, setOpen] = React.useState(false);
 
 
-  const handleClickOpen = () => {
+  const handleClickOpen = (url) => {
+    setImageTobeDelete(url);
     setOpen(true);
   };
 
@@ -39,17 +41,13 @@ const UpLoadimage = () => {
     setOpenAl(false);
   };
 
-
-
- 
-
-  const deleteHandler = (ref, url,id) => {
-    deleteObject(ref).then((res) =>{
-      setImageList(imageList.filter((img) => img.url !== url))
+  const deleteHandler = () => {
+    const imageRef = ref(storage, imageTobeDelete)    
+    deleteObject(imageRef).then((res) =>{
+      setImageList(imageList.filter((img) => img.url !== imageTobeDelete))//
       setOpen(false);
-    setOpenAl(true);
-
-      // alert('seccessfully deleted')
+      setOpenAl(true);
+      setImageTobeDelete("")
     })
 
   }
@@ -105,15 +103,8 @@ const UpLoadimage = () => {
   return (
     <div>
       <Container>
-
-
-
       <Typography variant="h6" color="primary" justifyContent={'center'} marginY={10}>admin gallery page</Typography>
-      
-
       <Box marginBottom={10}>
-      
-
         <TextField type='file' size='small' onChange={(e) =>{setImage(e.target.files[0])}} ></TextField>
         <Button onClick={uploadfile}>Up Load</Button>
         <Stack spacing={2} sx={{ flex: 1 }}>
@@ -143,12 +134,11 @@ const UpLoadimage = () => {
             component="img"
             image={`${fileobj.url}`}
             >
-            
+           
             </CardMedia>
             <CardActions>
               <Button variant='text'
-              //  onClick={() => deleteHandler(fileobj.ref, fileobj.url)}
-              onClick={handleClickOpen}
+              onClick={() => handleClickOpen(fileobj.url)}
                >
                 delete
               </Button>
@@ -175,7 +165,7 @@ aria-describedby="alert-dialog-description"
 </DialogContent>
 <DialogActions>
   <Button onClick={handleClose}>Disagree</Button>
-  <Button onClick={() => deleteHandler(fileobj.ref, fileobj.url, fileobj.id)} autoFocus>
+  <Button onClick={() => deleteHandler()} autoFocus>
     Agree
   </Button>
 </DialogActions>
